@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     try {
-        console.log(`Server listening to ${PORT}...`);
+        console.log(`Server is listening to ${PORT}...`);
     }
     catch (err) {
         console.log(err);
