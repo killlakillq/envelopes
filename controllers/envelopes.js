@@ -19,7 +19,7 @@ exports.getEnvelopesById = async (req, res) => {
         if (!getParamById) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        res.status(200).send(getParamById);
+        return res.status(200).send(getParamById);
     } 
     catch (err) {
         res.status(404).send(err);
@@ -28,12 +28,12 @@ exports.getEnvelopesById = async (req, res) => {
 
 exports.createNewEnvelope = async (req, res) => {
     try {
-        const { title, budjet } = req.body;
+        const { title, budget } = req.body;
         const envelopes = await dbEnvelopes;
         const newEnvelope = {
             id: req.params.id,
             title,
-            budjet,
+            budget,
         };
         envelopes.push(newEnvelope);
         res.status(201).send(envelopes);
@@ -55,7 +55,7 @@ exports.updateEnvelope = async (req, res) => {
         if (!envelopes) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        res.status(201).json(envelopes);
+        return res.status(201).json(envelopes);
     }
     catch (err) {
         res.status(500).send(err);
@@ -74,16 +74,7 @@ exports.deleteEnvelopes = async (req, res) => {
         if (!envelopes) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        res.status(204).send(removeEnvelopes);
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
-};
-
-exports.transfer = async (req, res) => {
-    try {
- 
+        return res.status(204).send(removeEnvelopes);
     }
     catch (err) {
         res.status(500).send(err);

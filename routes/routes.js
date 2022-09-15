@@ -7,6 +7,5 @@ router.get('/:id', getEnvelopesById);
 router.post('/:id', createNewEnvelope);
 router.put('/:id', updateEnvelope);
 router.delete('/:id', deleteEnvelopes);
-router.post('/:from/:to', transfer);
 
 module.exports = router;
