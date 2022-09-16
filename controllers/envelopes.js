@@ -1,25 +1,31 @@
 const express = require('express');
-const dbEnvelopes = require('../helpers/db.js');
+const db = require('../helpers/db.js');
 
 exports.getEnvelopes = async (req, res) => {
-    try { 
-        const envelopes = await dbEnvelopes;
-        res.status(200).send(envelopes);
+    try {
+        const envelopes = await db.query('SELECT * FROM envelopes');
+
+        if (!envelopes) {
+            return res.status(404).json({'Message': 'Not Found'});
+        }
+        
+        return res.status(200).send(envelopes.rows);
     }
     catch (err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 };
 
+
 exports.getEnvelopesById = async (req, res) => {
     try {
-        const id = req.params.id-1;
-        const getParamById = await dbEnvelopes[id];
+        const id = req.params.id;
+        const envelopes = await db.query('SELECT * FROM envelopes WHERE id = ($1)', [id]);
         
-        if (!getParamById) {
+        if (!envelopes) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        return res.status(200).send(getParamById);
+        return res.status(200).send(envelopes.rows[0]);
     } 
     catch (err) {
         res.status(404).send(err);
@@ -28,53 +34,40 @@ exports.getEnvelopesById = async (req, res) => {
 
 exports.createNewEnvelope = async (req, res) => {
     try {
-        const { title, budget } = req.body;
-        const envelopes = await dbEnvelopes;
-        const newEnvelope = {
-            id: req.params.id,
-            title,
-            budget,
-        };
-        envelopes.push(newEnvelope);
-        res.status(201).send(envelopes);
+        const {id, title, budget} = req.body;
+        const envelopes = await db.query(`INSERT INTO envelopes (id, title, budget) VALUES ($1, $2, $3) RETURNING *`, [id, title, budget]);
+        res.status(201).send(envelopes.rows[0]);
     }
     catch (err) {
         res.status(500).send(err);
     }
-
 };
 
 exports.updateEnvelope = async (req, res) => {
     try {
-        const id = req.params.id-1;
-        const envelopes = await dbEnvelopes;
+        const {id, title, budget} = req.body;
+        const envelopes = await db.query(`UPDATE envelopes SET title = $2, budget = $3 WHERE id = $1 RETURNING *`, [id, title, budget]);
 
-        envelopes[id]['title'] = req.body.title;
-        envelopes[id]['budget'] = req.body.budget;
 
         if (!envelopes) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        return res.status(201).json(envelopes);
+        return res.status(201).json(envelopes.rows[0]);
     }
     catch (err) {
         res.status(500).send(err);
     }
-
 };
 
 exports.deleteEnvelopes = async (req, res) => {
     try {
-        const id = req.params.id-1;
-        const envelopes = await dbEnvelopes;
-
-        const findEnvelopes = envelopes.filter((en) => en.id === id);
-        const removeEnvelopes = envelopes.splice(findEnvelopes, 1);
+        const id = req.params.id;
+        const envelopes = await db.query('DELETE FROM envelopes WHERE id = $1', [id]);
 
         if (!envelopes) {
             return res.status(404).json({'Message': 'Not Found'});
         }
-        return res.status(204).send(removeEnvelopes);
+        return res.status(204).send(envelopes.rows[0]);
     }
     catch (err) {
         res.status(500).send(err);

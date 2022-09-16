@@ -1,19 +1,11 @@
-const envelopes = [
-  {
-    id: 1,
-    title: "Rent",
-    budget: 1000,
-  },
-  {
-    id: 2,
-    title: "Groceries",
-    budget: 300,
-  },
-  {
-    id: 3,
-    title: "Entertainment",
-    budget: 400,
-  },
-];
+const Pool = require('pg').Pool;
+const pool = new Pool({
+  user: 'postgres',
+  password: 'postgres',
+  host: 'localhost',
+  port: '5432',
+  database: 'envelopes',
+});
 
-module.exports = envelopes;
+
+module.exports = pool;

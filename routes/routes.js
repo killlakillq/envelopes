@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getEnvelopes, getEnvelopesById, createNewEnvelope, updateEnvelope, deleteEnvelopes, transfer } = require('../controllers/envelopes.js');
+const { getEnvelopes, getEnvelopesById, createNewEnvelope, updateEnvelope, deleteEnvelopes } = require('../controllers/envelopes.js');
 
 router.get('/', getEnvelopes);
 router.get('/:id', getEnvelopesById);
