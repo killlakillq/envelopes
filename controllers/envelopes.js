@@ -32,7 +32,7 @@ exports.getEnvelopesById = async (req, res) => {
     }
 };
 
-exports.createNewEnvelope = async (req, res) => {
+exports.createNewEnvelopes = async (req, res) => {
     try {
         const {id, title, budget} = req.body;
         const envelopes = await db.query(`INSERT INTO envelopes (id, title, budget) VALUES ($1, $2, $3) RETURNING *`, [id, title, budget]);
@@ -43,7 +43,7 @@ exports.createNewEnvelope = async (req, res) => {
     }
 };
 
-exports.updateEnvelope = async (req, res) => {
+exports.updateEnvelopes = async (req, res) => {
     try {
         const {id, title, budget} = req.body;
         const envelopes = await db.query(`UPDATE envelopes SET title = $2, budget = $3 WHERE id = $1 RETURNING *`, [id, title, budget]);
