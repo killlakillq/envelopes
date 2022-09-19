@@ -73,3 +73,55 @@ exports.deleteEnvelopes = async (req, res) => {
         res.status(500).send(err);
     }
 };
+
+exports.addEnvelopeTransaction = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, amount, date } = req.body;
+        const envelope = await db.query('SELECT * FROM envelopes WHERE envelopes.id = $1', [id]);
+
+        if (envelope.rowCount < 1) {
+            return res.status(404).send({
+              message: "No envelope information found",
+                  });
+        };
+
+        const newTransaction = await db.query('INSERT INTO transactions (title, amount, date, envelope_id) VALUES ($1, $2, $3, $4) RETURNING *', [title, amount, date, id]);
+        await db.query('UPDATE envelopes SET budget = budget - $1 WHERE id = $2 RETURNING *', [amount, id]);
+
+        res.status(201).send({
+            status: 'Success',
+            message: 'New transaction created',
+            data: newTransaction.rows[0],
+        });
+    }
+    catch (err) {
+        res.status(500).send({
+            error: err.message
+        })
+    }
+};
+
+exports.getEnvelopeTransactions = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const transactions = await db.query('SELECT * FROM transactions WHERE envelope_id = $1', [id]);
+
+        if (transactions.rowCount < 1) {
+            return res.status(404).send({
+              message: "No envelope information found",
+                  });
+        };
+
+        res.status(200).send({
+            status: 'Success',
+			message: 'Transactions information retrieved',
+			data: transactions.rows,
+        });
+    }
+    catch (err) {
+        res.status(500).send({
+            error: err.message
+        });
+    }
+};

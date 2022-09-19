@@ -5,9 +5,9 @@ CREATE TABLE envelopes (
 );
 
 CREATE TABLE transactions (
-    id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
     amount INTEGER, 
     date INTEGER,
-    envelope_id INTEGER,
+    envelope_id INTEGER PRIMARY KEY,
     FOREIGN KEY (envelope_id) REFERENCES envelopes (id)
 );

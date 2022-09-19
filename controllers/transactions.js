@@ -27,7 +27,7 @@ exports.getTransactions = async (req, res) => {
 exports.getTransactionsById = async (req, res) => {
     try {
         const id = req.params.id;
-        const transactions = await db.query('SELECT * FROM transactions WHERE id = ($1)', [id]);
+        const transactions = await db.query('SELECT * FROM transactions WHERE envelope_id = ($1)', [id]);
         
         if (transactions.rowCount < 1) {
             return res.status(404).json({message: 'No transactions information found'});
@@ -52,7 +52,7 @@ exports.updateTransactions = async (req, res) => {
         const { id } = req.params;
         const { title, amount } = req.body;
         
-        const transaction = await db.query('SELECT * FROM transactions WHERE id = $1', [id]);
+        const transaction = await db.query('SELECT * FROM transactions WHERE envelope_id = $1', [id]);
 
 		if (transaction.rowCount < 1) {
 			return res.status(404).send({
@@ -60,10 +60,10 @@ exports.updateTransactions = async (req, res) => {
 			})
 		};
         
-        const prevAmount = await db.query('SELECT amount FROM transactions WHERE id = $1', [id]);
-        await db.query('UPDATE envelopes SET budget = (budget + $1) - $2 WHERE id IN (SELECT envelope_id FROM transactions WHERE id = $3)', [prevAmount.rows[0].amount, amount, id]);
+        const prevAmount = await db.query('SELECT amount FROM transactions WHERE envelope_id = $1', [id]);
+        await db.query('UPDATE envelopes SET budget = (budget + $1) - $2 WHERE id IN (SELECT envelope_id FROM transactions WHERE envelope_id = $3)', [prevAmount.rows[0].amount, amount, id]);
 
-        const updatedTransaction = await db.query('UPDATE transactions SET title = $1, amount = $2 WHERE id = $3 RETURNING *', [title, amount, id]);
+        const updatedTransaction = await db.query('UPDATE transactions SET title = $1, amount = $2 WHERE envelope_id = $3 RETURNING *', [title, amount, id]);
 
         res.status(201).send({
             status: 'Success',
@@ -82,7 +82,7 @@ exports.deleteTransactions = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const transaction = await db.query('SELECT * FROM transactions WHERE id = $1', [id]);
+        const transaction = await db.query('DELETE FROM transactions WHERE id = $1', [id])
 
         if (transaction.rowCount < 1) {
 			return res.status(404).send({
@@ -90,11 +90,11 @@ exports.deleteTransactions = async (req, res) => {
 			})
 		};
 
-        const transactionAmount = await db.query('SELECT amount FROM transactions WHERE id = $1', [id]);
-        await db.query('UPDATE envelopes SET budget = budget + $1 WHERE id IN (SELECT envelope_id FROM transactions WHERE id = $2', [transactionAmount.rows[0].amount, id]);
-        await db.query('DELETE FROM transactions WHERE id = $1', [id]);
-
-        res.sendStatus(204);
+        res.status(204).send({
+            status: 'Success',
+            message: 'Transaction has been deleted',
+            data: transaction.rows[0]
+        });
     }
     catch (err) {
         res.status(500).send({
