@@ -5,7 +5,7 @@ const envelopesRouter = require('./routes/envelopes.js');
 const transactionsRouter = require('./routes/transactions.js');
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 // parse application/json
 app.use(bodyParser.json());
 
